@@ -1,0 +1,275 @@
+/***********************************************************************************************************************
+	This is a template file for the class dlist. In includes the imlementation for all of the member functions
+
+************************************************************************************************************************/
+
+#include <cstdlib>
+#include <iostream>
+using namespace std;
+
+
+template <class T>
+dlist<T>::~dlist()
+{
+	DNode<T> *Temp;
+	while(head != NULL)
+	{
+		Temp = head;
+		head = head -> getNext();
+		delete Temp;
+	}
+	tail = NULL;
+}
+
+template <class T>
+dlist<T>::dlist(const dlist<T> &other)
+{
+	DNode<T> *cursor;
+	if(other.head == NULL)
+	{
+		head = NULL;
+		tail = NULL;
+	}
+
+	else
+	{
+		head = new DNode<T>(other.head ->getData());
+		tail = head;
+		cursor = other.head -> getNext();
+
+		count = other.count;
+
+		while(cursor != NULL)
+		{
+			tail -> setNext(new DNode<T>(cursor -> getData()));
+			tail -> getNext() -> setPrevious(tail);
+			tail = tail -> getNext();
+			cursor = cursor -> getNext();
+		}
+	}
+}
+
+template <class T>
+dlist<T>& dlist<T>::operator = (const dlist<T> &other)
+{
+	if(this == &other)
+		return *this;
+
+	DNode<T> *Temp;
+	while(head != NULL)
+	{
+		Temp = head;
+		head = head -> getNext();
+		delete Temp;
+	}
+
+	head = new DNode<T>(other.head -> getData());
+	tail = head;
+	Temp = other.head -> getNext();
+
+	count = other.count;
+
+	while(Temp != NULL)
+	{
+		tail -> setNext(new DNode<T>(Temp -> getData()));
+		tail -> setNext() - setPrevious(tail);
+		tail = tail -> getNext();
+		Temp = Temp -> getNext();
+	}
+}
+
+template <class T>
+void dlist<T>::front_insert(T item)
+{
+	if(head == NULL)
+	{
+		head = new DNode<T>;
+		tail = head;
+
+		head -> setData(item);
+	}
+
+	else
+	{
+		DNode<T> *NewNode;
+		NewNode = new DNode<T>;
+		NewNode -> setData(item);
+
+		NewNode -> setNext(head);
+		head -> setPrevious(NewNode);
+		head = NewNode;
+	}
+
+	return;
+}
+
+template <class T>
+void dlist<T>::rear_insert(T item)
+{
+	if(tail == NULL)
+		front_insert(item);
+
+	else
+	{
+		DNode<T> *NewNode;
+		NewNode = new DNode<T>;
+		NewNode -> setData(item);
+
+		NewNode -> setPrevious(tail);
+		tail -> setNext(NewNode);
+		tail = NewNode;
+	}
+
+	return;
+}
+
+
+template <class T>
+void dlist<T>::front_remove()
+{
+	if(head == NULL)
+		return;
+
+	else if(head == tail)
+	{
+		DNode<T> *temp;
+		temp = head;
+		head = NULL;
+		tail = NULL;
+		delete temp;
+	}
+
+	else
+	{
+		DNode<T> *cursor;
+		cursor = head -> getNext();
+		delete head;
+		head = cursor;
+		head -> setPrevious(NULL);
+	}
+}
+
+template <class T>
+void dlist<T>::rear_remove()
+{
+	if(tail == NULL)
+	{
+		return;
+	}
+
+	else if(head == tail)
+	{
+		DNode<T> *temp;
+		temp = head;
+		head = NULL;
+		tail = NULL;
+		delete temp;
+	}
+
+	else
+	{
+		DNode<T> *cursor;
+		cursor = tail -> getPrevious();
+		delete tail;
+		tail = cursor;
+		tail -> setNext(NULL);
+	}
+}
+
+template <class T>
+void dlist<T>::insert_before(iterator it, T item)
+{
+	if(it == NULL || it.current == head)
+		front_insert(item);
+	
+	else if(head == tail)
+	{
+		head = new DNode<T>(item);
+		tail -> setPrevious(head);
+		head -> setNext(tail);
+	}
+
+	else if(it.current != NULL)
+	{
+		DNode<T> *temp, *cursor;
+		temp = new DNode<T>(item);
+		cursor = it.current -> getPrevious();
+		cursor -> setNext(temp);
+		it.current -> setPrevious(temp);
+		temp -> setNext(it.current);
+		temp -> setPrevious(cursor);
+	}
+}
+
+template <class T>
+void dlist<T>::insert_after(iterator it, T item)
+{
+	if(it == NULL || it.current == tail)
+		rear_insert(item);
+	
+	else if(head == tail)
+	{
+		tail = new DNode<T>(item);
+		head -> setNext(tail);
+		tail -> setPrevious(head);
+	}
+
+	else if(it.current != NULL)
+	{
+		DNode<T> *temp, *cursor;
+		temp = new DNode<T>(item);
+		cursor = it.current -> getNext();
+		cursor -> setPrevious(temp);
+		it.current -> setNext(temp);
+		temp -> setNext(cursor);
+		temp -> setPrevious(it.current);
+	}
+}
+
+template <class T>
+int dlist<T>::size()
+{
+	DNode<T> *cursor;
+	int count = 0;
+
+	while(cursor != NULL)
+	{
+		cursor = cursor -> getNext();
+		count++;
+	}
+
+	return count;
+}
+
+template <class T>
+void dlist<T>::remove(iterator it)
+{
+	DNode<T> *temp1, *temp2;
+
+	if(head == NULL)
+		return;
+	
+	else if (head == tail)
+	{
+		delete head;
+		tail = NULL;
+		head = NULL;
+	}
+
+	else if(head == it.current)
+		front_remove();
+
+	else if(tail == it.current)
+		rear_remove();
+
+	else
+	{
+		temp1 = it.current -> getPrevious();
+		temp2 = it.current -> getNext();
+
+		delete it.current;
+
+		temp1 -> setNext(temp2);
+		temp1 -> setPrevious(temp1);
+	}
+}
